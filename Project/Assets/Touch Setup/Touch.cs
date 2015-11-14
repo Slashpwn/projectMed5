@@ -48,6 +48,15 @@ public byte minFov;
 	// Update is called once per frame
 	void Update () {
 		
+		if (Input.touchCount == 3 && Input.GetTouch(0).phase == TouchPhase.Ended) {
+			
+			myCamera.transform.Rotate(90.0f, 0.0f, 0.0f);
+			//Figure out the best way to lerp it with beauty
+
+			Debug.Log("Three fingers");
+			
+		}
+
 		//Will check if we're touching or not
 		if(Input.touchCount == 1) {
 			//Debug.Log("Debug: Touch Happened");	
@@ -253,5 +262,7 @@ public byte minFov;
 			}
 			
 		}
+		
+	
 	}
 }

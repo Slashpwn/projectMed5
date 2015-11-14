@@ -14,6 +14,8 @@ public class Songpool : System.Object{
 	List<GameObject> labels = new List<GameObject>();
 	MonoBehaviour m = new MonoBehaviour();
 	List<Artist> artists = new List<Artist>();
+	List<Genre> genres = new List<Genre>();
+
 
 	// Use this for initialization
 	void Start () {
@@ -28,6 +30,29 @@ public class Songpool : System.Object{
 	}
 
 	public void show(){
+		int row = 0;
+		int col = 0;
+		cube = GameObject.CreatePrimitive (PrimitiveType.Cube);
+		foreach(Genre g in genres){
+			col = 0;
+			foreach(Artist a in g.artists){
+				GameObject c = (GameObject)MonoBehaviour.Instantiate(cube);
+				col+=1;
+				c.transform.position = new Vector3(cube.transform.position.x+col, cube.transform.position.y+row, cube.transform.position.z);
+				c.name = a.name;
+
+
+				//MonoBehaviour.Instantiate(Resources.Load("Cabinet", typeof(GameObject)));
+				//GameObject c = (GameObject)MonoBehaviour.Instantiate(Resources.Load("Cabinet"));
+				//c.transform.position = new Vector3(c.transform.position.x+col, c.transform.position.y+row, c.transform.position.z);
+
+
+			}
+			row += 1;
+
+		}
+		GameObject.Destroy (cube);
+		/*
 		cube = GameObject.CreatePrimitive (PrimitiveType.Cube);
 		float i = 0;
 		foreach(PlaylistItem p in songpool){
@@ -35,10 +60,10 @@ public class Songpool : System.Object{
 			MonoBehaviour.Instantiate(cube);
 			i+=0.1f;
 			cube.transform.position = new Vector3(cube.transform.position.x+i, cube.transform.position.y, cube.transform.position.z);
-			cube.name = "cube"+i;
+			cube.name = p.title;
 			GameObject label = new GameObject(cube.name+" label");
-			TextMesh tml = (TextMesh)label.AddComponent<TextMesh>();
-			MeshRenderer mrl = (MeshRenderer)label.AddComponent<MeshRenderer>();
+			TextMesh tml = (TextMesh)label.AddComponent("TextMesh");
+			MeshRenderer mrl = (MeshRenderer)label.AddComponent("MeshRenderer");
 			tml.text = cube.name;
 			tml.transform.position = cube.transform.position;
 			tml.offsetZ = 0;
@@ -53,6 +78,7 @@ public class Songpool : System.Object{
 			
 			labels.Add(label);
 		}
+		*/
 	}
 	
 	public void hide(){
@@ -71,8 +97,10 @@ public class Songpool : System.Object{
 		foreach (string musicFile in musicFiles) {
 			//using (var mp3 = new Mp3File(musicFile)) {
 				Mp3ID3 tag = new Mp3ID3(musicFile);
+
 				//Id3Tag tag = mp3.GetTag (Id3TagFamily.FileStartTag);
-				
+					
+
 				if(tag != null){
 					
 					/*
@@ -81,8 +109,7 @@ public class Songpool : System.Object{
 					Debug.Log ("Album: " + tag.Album.Value);
 					Debug.Log("Genre: " + tag.Genre.Value);
 */
-					//Debug.Log(tag.Artist);
-
+					
 					PlaylistItem newest = new PlaylistItem(musicFile,tag.Genre, tag.Artist, tag.Album, tag.Title);
 					Debug.Log (newest.toString());
 					songpool.Add(newest);
@@ -91,9 +118,9 @@ public class Songpool : System.Object{
 					stream.Close();
 				}			
 				
+		//}	
 				
-				
-			//}
+			
 		}
 		
 		
@@ -122,13 +149,35 @@ public class Songpool : System.Object{
 				}
 			}
 			if(temp == false){
-				artists.Add(new Artist(pl.artist,pl.genre));
+				Artist tempa = new Artist(pl.artist, pl.genre);
+				tempa.songs.Add (pl);
+				artists.Add(tempa);
 				//Song needs to be added for the artist
 			}
 		}
+
+		foreach (Artist ar in artists) {
+						bool temp = false;
+						foreach (Genre g in genres) {
+								if (g.name == ar.genre) {
+										temp = true;
+										g.artists.Add (ar);
+								}
+						}
+						if (temp == false) {
+								Genre tempg = new Genre (ar.genre);
+								tempg.artists.Add (ar);
+								genres.Add (tempg);
+								//Song needs to be added for the artist
+						}
+				}
+
 		foreach(Artist a in artists){
 			Debug.Log (a.name);
 		}
+				foreach(Genre g in genres){
+					Debug.Log (g.name);
+				}
 	}
 }
 
@@ -141,5 +190,15 @@ public class Artist : System.Object{
 		name = tname;
 		genre = tgenre;
 
+	}
+}
+
+public class Genre : System.Object{
+	public string name;
+	public List<Artist> artists = new List<Artist>();
+	
+	public Genre(string tname){
+		name = tname;
+		
 	}
 }
